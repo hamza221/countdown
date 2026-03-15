@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Countdown</title>
+<style>
+  @font-face {
+    font-family: 'SF Pro Display';
+    src: local('-apple-system'), local('BlinkMacSystemFont'), local('SF Pro Display'), local('Helvetica Neue');
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  }
+
+  .container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  #countdown {
+    color: #000000;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    width: 90vw;
+    text-align: center;
+    font-size: 10vw;
+  }
+
+  #message {
+    display: none;
+    color: #000000;
+    font-weight: 700;
+    font-size: 8vw;
+    text-align: center;
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="countdown"></div>
+  <div id="message">Madriii!</div>
+</div>
+<canvas id="confetti"></canvas>
+
+<script>
+const TARGET = new Date('2026-03-30T23:10:00').getTime();
+
+const countdownEl = document.getElementById('countdown');
+const messageEl = document.getElementById('message');
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d');
+
+// --- Confetti ---
+let confettiPieces = [];
+let confettiActive = false;
+let confettiSpawnTimer = 0;
+const COLORS = [
+  '#FF1461', '#18FF92', '#5A87FF', '#FBF38C',
+  '#FF7A00', '#A855F7', '#00D4FF', '#FF4D6D',
+  '#22D3EE', '#FACC15', '#FB923C', '#34D399'
+];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth * devicePixelRatio;
+  canvas.height = window.innerHeight * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  canvas.style.width = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function randomRange(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function createConfettiPiece() {
+  return {
+    x: randomRange(0, window.innerWidth),
+    y: randomRange(-20, -200),
+    w: randomRange(6, 12),
+    h: randomRange(4, 8),
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    rotation: randomRange(0, 360),
+    rotationSpeed: randomRange(-8, 8),
+    vx: randomRange(-2, 2),
+    vy: randomRange(2, 7),
+    opacity: 1,
+    wobble: randomRange(0, Math.PI * 2),
+    wobbleSpeed: randomRange(0.03, 0.08),
+  };
+}
+
+function startConfetti() {
+  if (confettiActive) return;
+  confettiActive = true;
+  confettiPieces = [];
+  for (let i = 0; i < 200; i++) {
+    const p = createConfettiPiece();
+    p.y = randomRange(-window.innerHeight, window.innerHeight);
+    confettiPieces.push(p);
+  }
+  confettiSpawnTimer = 0;
+  animateConfetti();
+}
+
+function animateConfetti() {
+  if (!confettiActive) return;
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+  confettiSpawnTimer++;
+  if (confettiSpawnTimer < 180) {
+    for (let i = 0; i < 5; i++) {
+      confettiPieces.push(createConfettiPiece());
+    }
+  }
+
+  for (let i = confettiPieces.length - 1; i >= 0; i--) {
+    const p = confettiPieces[i];
+    p.x += p.vx + Math.sin(p.wobble) * 0.5;
+    p.y += p.vy;
+    p.rotation += p.rotationSpeed;
+    p.wobble += p.wobbleSpeed;
+
+    if (p.y > window.innerHeight + 50) {
+      p.opacity -= 0.05;
+    }
+
+    if (p.opacity <= 0) {
+      confettiPieces.splice(i, 1);
+      continue;
+    }
+
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate((p.rotation * Math.PI) / 180);
+    ctx.globalAlpha = p.opacity;
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    ctx.restore();
+  }
+
+  if (confettiPieces.length === 0 && confettiSpawnTimer >= 180) {
+    confettiActive = false;
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    return;
+  }
+
+  requestAnimationFrame(animateConfetti);
+}
+
+// --- Countdown ---
+function pad(n, d) {
+  return String(n).padStart(d, '0');
+}
+
+let hasTriggered = false;
+
+function tick() {
+  const now = Date.now();
+  const diff = TARGET - now;
+
+  if (diff <= 0) {
+    countdownEl.textContent = '00:00:00:00:00';
+    if (!hasTriggered) {
+      hasTriggered = true;
+      countdownEl.style.display = 'none';
+      messageEl.style.display = 'block';
+      startConfetti();
+    }
+    // If page is opened after time, also trigger
+    if (!confettiActive && !hasTriggered) {
+      hasTriggered = true;
+      startConfetti();
+    }
+    return;
+  }
+
+  const ms = Math.floor((diff % 1000) / 10);
+  const totalSeconds = Math.floor(diff / 1000);
+  const seconds = totalSeconds % 60;
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const minutes = totalMinutes % 60;
+  const totalHours = Math.floor(totalMinutes / 60);
+  const hours = totalHours % 24;
+  const days = Math.floor(totalHours / 24);
+
+  countdownEl.textContent =
+    pad(days, 2) + ':' + pad(hours, 2) + ':' + pad(minutes, 2) + ':' + pad(seconds, 2) + ':' + pad(ms, 2);
+
+  requestAnimationFrame(tick);
+}
+
+// On load: if already past target, show message + confetti immediately
+if (Date.now() >= TARGET) {
+  countdownEl.style.display = 'none';
+  messageEl.style.display = 'block';
+  hasTriggered = true;
+  startConfetti();
+} else {
+  requestAnimationFrame(tick);
+}
+</script>
+</body>
+</html>
