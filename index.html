@@ -24,13 +24,175 @@
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
   }
 
+  /* --- Loading Screen --- */
+  #loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: opacity 0.6s ease;
+  }
+
+  #loading.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .airplane-wrapper {
+    width: 200px;
+    height: 120px;
+    position: relative;
+    overflow: visible;
+  }
+
+  .airplane {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    animation: airplane-float 2s ease-in-out infinite;
+  }
+
+  .airplane svg {
+    width: 64px;
+    height: 64px;
+    fill: #000000;
+  }
+
+  @keyframes airplane-float {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+    50% { transform: translate(-50%, -50%) translateY(-10px); }
+  }
+
+  /* Contrail dots behind airplane */
+  .contrail {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: 8px;
+    margin-top: 2px;
+    margin-left: -50px;
+  }
+
+  .contrail span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #000000;
+    animation: contrail-pulse 1.4s ease-in-out infinite;
+  }
+
+  .contrail span:nth-child(1) { animation-delay: 0s; opacity: 0.2; }
+  .contrail span:nth-child(2) { animation-delay: 0.2s; opacity: 0.35; }
+  .contrail span:nth-child(3) { animation-delay: 0.4s; opacity: 0.5; }
+
+  @keyframes contrail-pulse {
+    0%, 100% { opacity: 0.15; transform: scale(0.8); }
+    50% { opacity: 0.6; transform: scale(1.2); }
+  }
+
+  .loading-text {
+    margin-top: 30px;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    animation: loading-fade 1.8s ease-in-out infinite;
+  }
+
+  @keyframes loading-fade {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* --- Main Content --- */
   .container {
     width: 100vw;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     position: relative;
+  }
+
+  .route {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    user-select: none;
+  }
+
+  .route-code {
+    font-size: 3.5vw;
+    font-weight: 700;
+    color: #000000;
+    letter-spacing: 0.05em;
+  }
+
+  .route-city {
+    font-size: 1.4vw;
+    font-weight: 400;
+    color: #999999;
+    letter-spacing: 0.02em;
+  }
+
+  .route-airport {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .route-line {
+    position: relative;
+    width: 20vw;
+    height: 2.5vw;
+    min-height: 18px;
+    display: flex;
+    align-items: center;
+  }
+
+  .route-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0;
+    border-top: 2px dashed #d0d0d0;
+  }
+
+  .route-plane {
+    position: absolute;
+    left: 0%;
+    top: 50%;
+    width: 2.5vw;
+    height: 2.5vw;
+    min-width: 18px;
+    min-height: 18px;
+    fill: #000000;
+    transform: translate(-50%, -50%);
+    transition: left 1s ease-out;
+  }
+
+  @keyframes route-plane-bob {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+    50% { transform: translate(-50%, -50%) translateY(-3px); }
+  }
+
+  .route-plane.in-flight {
+    animation: route-plane-bob 2s ease-in-out infinite;
   }
 
   #countdown {
@@ -64,170 +226,319 @@
 </style>
 </head>
 <body>
+
+<!-- Loading Screen -->
+<div id="loading">
+  <div class="airplane-wrapper">
+    <div class="airplane">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+      </svg>
+    </div>
+    <div class="contrail">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+  <div class="loading-text" id="loading-text"></div>
+</div>
+
+<!-- Main Content -->
 <div class="container">
+  <div id="route" class="route">
+    <div class="route-airport">
+      <span class="route-code" id="dep-code"></span>
+      <span class="route-city" id="dep-city"></span>
+    </div>
+    <div class="route-line">
+      <div class="route-track"></div>
+      <svg id="route-plane" class="route-plane" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(90 12 12)"/>
+      </svg>
+    </div>
+    <div class="route-airport">
+      <span class="route-code" id="arr-code"></span>
+      <span class="route-city" id="arr-city"></span>
+    </div>
+  </div>
   <div id="countdown"></div>
-  <div id="message">Madriii!</div>
+  <div id="message" id="arrival-msg"></div>
 </div>
 <canvas id="confetti"></canvas>
 
 <script>
-const TARGET = new Date('2026-03-26T23:10:00').getTime();
+// ============================================================
+// FLIGHT CONFIG — edit these for each flight
+// ============================================================
+const FLIGHT_IATA       = 'W62371';                        // Flight IATA code
+const FLIGHT_DATE       = '2026-03-26';                    // Departure date (YYYY-MM-DD)
+const FALLBACK_DEPARTURE = '2026-03-26T02:55:00Z';         // Scheduled departure in UTC (fallback)
+const FALLBACK_ARRIVAL  = '2026-03-26T06:30:00Z';          // Scheduled arrival in UTC (fallback if API fails)
+const DEP_CODE          = 'BUD';                           // Departure airport IATA
+const DEP_CITY          = 'Budapest';                      // Departure city name
+const ARR_CODE          = 'MAD';                           // Arrival airport IATA
+const ARR_CITY          = 'Madrid';                        // Arrival city name
+const ARRIVAL_MESSAGE   = 'Madriii!';                      // Message shown when countdown hits zero
+// ============================================================
 
+const AIRLABS_API_KEY = '__AIRLABS_API_KEY__';
+const FALLBACK_TARGET = new Date(FALLBACK_ARRIVAL).getTime();
+const FALLBACK_DEP = new Date(FALLBACK_DEPARTURE).getTime();
+
+// ============================================================
+// Populate page from config
+// ============================================================
+document.getElementById('loading-text').textContent = `Tracking ${FLIGHT_IATA}`;
+document.getElementById('dep-code').textContent = DEP_CODE;
+document.getElementById('dep-city').textContent = DEP_CITY;
+document.getElementById('arr-code').textContent = ARR_CODE;
+document.getElementById('arr-city').textContent = ARR_CITY;
+document.getElementById('message').textContent = ARRIVAL_MESSAGE;
+
+// ============================================================
+// DOM Elements
+// ============================================================
+const loadingEl = document.getElementById('loading');
 const countdownEl = document.getElementById('countdown');
 const messageEl = document.getElementById('message');
+const routeEl = document.getElementById('route');
 const canvas = document.getElementById('confetti');
 const ctx = canvas.getContext('2d');
 
-// --- Confetti ---
-let confettiPieces = [];
-let confettiActive = false;
-let confettiSpawnTimer = 0;
-const COLORS = [
-  '#FF1461', '#18FF92', '#5A87FF', '#FBF38C',
-  '#FF7A00', '#A855F7', '#00D4FF', '#FF4D6D',
-  '#22D3EE', '#FACC15', '#FB923C', '#34D399'
-];
+// ============================================================
+// Fetch flight times from AirLabs (live delay updates)
+// ============================================================
+async function fetchFlightTimes() {
+  try {
+    const url = `https://airlabs.co/api/v9/flight?flight_iata=${FLIGHT_IATA}&api_key=${AIRLABS_API_KEY}`;
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth * devicePixelRatio;
-  canvas.height = window.innerHeight * devicePixelRatio;
-  ctx.scale(devicePixelRatio, devicePixelRatio);
-  canvas.style.width = window.innerWidth + 'px';
-  canvas.style.height = window.innerHeight + 'px';
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-function randomRange(min, max) {
-  return Math.random() * (max - min) + min;
-}
+    const data = await response.json();
 
-function createConfettiPiece() {
-  return {
-    x: randomRange(0, window.innerWidth),
-    y: randomRange(-20, -200),
-    w: randomRange(6, 12),
-    h: randomRange(4, 8),
-    color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    rotation: randomRange(0, 360),
-    rotationSpeed: randomRange(-8, 8),
-    vx: randomRange(-2, 2),
-    vy: randomRange(2, 7),
-    opacity: 1,
-    wobble: randomRange(0, Math.PI * 2),
-    wobbleSpeed: randomRange(0.03, 0.08),
-  };
-}
+    if (data.error) throw new Error(data.error.message || 'API error');
+    if (!data.response) throw new Error('No flight data found');
 
-function startConfetti() {
-  if (confettiActive) return;
-  confettiActive = true;
-  confettiPieces = [];
-  for (let i = 0; i < 200; i++) {
-    const p = createConfettiPiece();
-    p.y = randomRange(-window.innerHeight, window.innerHeight);
-    confettiPieces.push(p);
-  }
-  confettiSpawnTimer = 0;
-  animateConfetti();
-}
+    const flight = data.response;
 
-function animateConfetti() {
-  if (!confettiActive) return;
-  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-  confettiSpawnTimer++;
-  if (confettiSpawnTimer < 180) {
-    for (let i = 0; i < 5; i++) {
-      confettiPieces.push(createConfettiPiece());
-    }
-  }
-
-  for (let i = confettiPieces.length - 1; i >= 0; i--) {
-    const p = confettiPieces[i];
-    p.x += p.vx + Math.sin(p.wobble) * 0.5;
-    p.y += p.vy;
-    p.rotation += p.rotationSpeed;
-    p.wobble += p.wobbleSpeed;
-
-    if (p.y > window.innerHeight + 50) {
-      p.opacity -= 0.05;
+    // Only accept if the flight is for our target date
+    const depTime = flight.dep_time_utc || flight.dep_time || '';
+    if (!depTime.startsWith(FLIGHT_DATE)) {
+      throw new Error(`API returned flight for ${depTime.slice(0, 10)}, not ${FLIGHT_DATE}. Using fallback.`);
     }
 
-    if (p.opacity <= 0) {
-      confettiPieces.splice(i, 1);
-      continue;
-    }
+    // Departure: prefer estimated, then scheduled
+    const depStr = flight.dep_estimated_utc || flight.dep_time_utc;
+    const departure = depStr
+      ? new Date(depStr.replace(' ', 'T') + ':00Z').getTime()
+      : FALLBACK_DEP;
 
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate((p.rotation * Math.PI) / 180);
-    ctx.globalAlpha = p.opacity;
-    ctx.fillStyle = p.color;
-    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-    ctx.restore();
+    // Arrival: prefer estimated (accounts for delays), then scheduled
+    const arrStr = flight.arr_estimated_utc || flight.arr_time_utc;
+    if (!arrStr) throw new Error('No arrival time in response');
+
+    const arrival = new Date(arrStr.replace(' ', 'T') + ':00Z').getTime();
+    if (isNaN(arrival)) throw new Error('Invalid arrival time format');
+
+    const isDelayed = flight.arr_delayed && flight.arr_delayed > 0;
+    console.log(`Flight ${FLIGHT_IATA}: dep UTC ${depStr}, arr UTC ${arrStr}${isDelayed ? ` (delayed ${flight.arr_delayed} min)` : ''}`);
+    return { departure, arrival };
+  } catch (err) {
+    console.warn(`Failed to fetch flight data: ${err.message}. Using fallback times.`);
+    return { departure: FALLBACK_DEP, arrival: FALLBACK_TARGET };
+  }
+}
+
+// ============================================================
+// Start the app
+// ============================================================
+async function init() {
+  const { departure: DEPARTURE, arrival: TARGET } = await fetchFlightTimes();
+  const routePlaneEl = document.getElementById('route-plane');
+
+  // Fade out loading screen
+  loadingEl.classList.add('fade-out');
+  setTimeout(() => {
+    loadingEl.style.display = 'none';
+  }, 600);
+
+  // --- Confetti ---
+  let confettiPieces = [];
+  let confettiActive = false;
+  let confettiSpawnTimer = 0;
+  const COLORS = [
+    '#FF1461', '#18FF92', '#5A87FF', '#FBF38C',
+    '#FF7A00', '#A855F7', '#00D4FF', '#FF4D6D',
+    '#22D3EE', '#FACC15', '#FB923C', '#34D399'
+  ];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth * devicePixelRatio;
+    canvas.height = window.innerHeight * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function randomRange(min, max) {
+    return Math.random() * (max - min) + min;
   }
 
-  if (confettiPieces.length === 0 && confettiSpawnTimer >= 180) {
-    confettiActive = false;
+  function createConfettiPiece() {
+    return {
+      x: randomRange(0, window.innerWidth),
+      y: randomRange(-20, -200),
+      w: randomRange(6, 12),
+      h: randomRange(4, 8),
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      rotation: randomRange(0, 360),
+      rotationSpeed: randomRange(-8, 8),
+      vx: randomRange(-2, 2),
+      vy: randomRange(2, 7),
+      opacity: 1,
+      wobble: randomRange(0, Math.PI * 2),
+      wobbleSpeed: randomRange(0.03, 0.08),
+    };
+  }
+
+  function startConfetti() {
+    if (confettiActive) return;
+    confettiActive = true;
+    confettiPieces = [];
+    for (let i = 0; i < 200; i++) {
+      const p = createConfettiPiece();
+      p.y = randomRange(-window.innerHeight, window.innerHeight);
+      confettiPieces.push(p);
+    }
+    confettiSpawnTimer = 0;
+    animateConfetti();
+  }
+
+  function animateConfetti() {
+    if (!confettiActive) return;
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    return;
+
+    confettiSpawnTimer++;
+    if (confettiSpawnTimer < 180) {
+      for (let i = 0; i < 5; i++) {
+        confettiPieces.push(createConfettiPiece());
+      }
+    }
+
+    for (let i = confettiPieces.length - 1; i >= 0; i--) {
+      const p = confettiPieces[i];
+      p.x += p.vx + Math.sin(p.wobble) * 0.5;
+      p.y += p.vy;
+      p.rotation += p.rotationSpeed;
+      p.wobble += p.wobbleSpeed;
+
+      if (p.y > window.innerHeight + 50) {
+        p.opacity -= 0.05;
+      }
+
+      if (p.opacity <= 0) {
+        confettiPieces.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.globalAlpha = p.opacity;
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    }
+
+    if (confettiPieces.length === 0 && confettiSpawnTimer >= 180) {
+      confettiActive = false;
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      return;
+    }
+
+    requestAnimationFrame(animateConfetti);
   }
 
-  requestAnimationFrame(animateConfetti);
-}
-
-// --- Countdown ---
-function pad(n, d) {
-  return String(n).padStart(d, '0');
-}
-
-let hasTriggered = false;
-
-function tick() {
-  const now = Date.now();
-  const diff = TARGET - now;
-
-  if (diff <= 0) {
-    countdownEl.textContent = '00:00:00:00:00';
-    if (!hasTriggered) {
-      hasTriggered = true;
-      countdownEl.style.display = 'none';
-      messageEl.style.display = 'block';
-      startConfetti();
+  // --- Route plane progress ---
+  function updateRoutePlane(now) {
+    if (now < DEPARTURE) {
+      // Before departure: plane at start
+      routePlaneEl.style.left = '0%';
+      routePlaneEl.classList.remove('in-flight');
+    } else if (now >= TARGET) {
+      // After arrival: plane at end
+      routePlaneEl.style.left = '100%';
+      routePlaneEl.classList.remove('in-flight');
+    } else {
+      // In flight: interpolate position
+      const progress = (now - DEPARTURE) / (TARGET - DEPARTURE);
+      routePlaneEl.style.left = (progress * 100) + '%';
+      routePlaneEl.classList.add('in-flight');
     }
-    // If page is opened after time, also trigger
-    if (!confettiActive && !hasTriggered) {
-      hasTriggered = true;
-      startConfetti();
-    }
-    return;
   }
 
-  const ms = Math.floor((diff % 1000) / 10);
-  const totalSeconds = Math.floor(diff / 1000);
-  const seconds = totalSeconds % 60;
-  const totalMinutes = Math.floor(totalSeconds / 60);
-  const minutes = totalMinutes % 60;
-  const totalHours = Math.floor(totalMinutes / 60);
-  const hours = totalHours % 24;
-  const days = Math.floor(totalHours / 24);
+  // --- Countdown ---
+  function pad(n, d) {
+    return String(n).padStart(d, '0');
+  }
 
-  countdownEl.textContent =
-    pad(days, 2) + ':' + pad(hours, 2) + ':' + pad(minutes, 2) + ':' + pad(seconds, 2) + ':' + pad(ms, 2);
+  let hasTriggered = false;
 
-  requestAnimationFrame(tick);
+  function tick() {
+    const now = Date.now();
+    const diff = TARGET - now;
+
+    updateRoutePlane(now);
+
+    if (diff <= 0) {
+      countdownEl.textContent = '00:00:00:00:00';
+      if (!hasTriggered) {
+        hasTriggered = true;
+        countdownEl.style.display = 'none';
+        routeEl.style.display = 'none';
+        messageEl.style.display = 'block';
+        startConfetti();
+      }
+      if (!confettiActive && !hasTriggered) {
+        hasTriggered = true;
+        startConfetti();
+      }
+      return;
+    }
+
+    const ms = Math.floor((diff % 1000) / 10);
+    const totalSeconds = Math.floor(diff / 1000);
+    const seconds = totalSeconds % 60;
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const minutes = totalMinutes % 60;
+    const totalHours = Math.floor(totalMinutes / 60);
+    const hours = totalHours % 24;
+    const days = Math.floor(totalHours / 24);
+
+    countdownEl.textContent =
+      pad(days, 2) + ':' + pad(hours, 2) + ':' + pad(minutes, 2) + ':' + pad(seconds, 2) + ':' + pad(ms, 2);
+
+    requestAnimationFrame(tick);
+  }
+
+  // On load: if already past target, show message + confetti immediately
+  if (Date.now() >= TARGET) {
+    countdownEl.style.display = 'none';
+    routeEl.style.display = 'none';
+    messageEl.style.display = 'block';
+    hasTriggered = true;
+    startConfetti();
+  } else {
+    requestAnimationFrame(tick);
+  }
 }
 
-// On load: if already past target, show message + confetti immediately
-if (Date.now() >= TARGET) {
-  countdownEl.style.display = 'none';
-  messageEl.style.display = 'block';
-  hasTriggered = true;
-  startConfetti();
-} else {
-  requestAnimationFrame(tick);
-}
+// Start everything
+init();
 </script>
 </body>
 </html>
