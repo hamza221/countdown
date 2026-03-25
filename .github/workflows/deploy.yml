@@ -23,15 +23,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject API key
+      - name: Create config.js from secret
         env:
           AIRLABS_KEY: ${{ secrets.AIRLABS_API_KEY }}
-        run: |
-          sed -i "s|__AIRLABS_API_KEY__|${AIRLABS_KEY}|g" index.html
-          if grep -q '__AIRLABS_API_KEY__' index.html; then
-            echo "::error::API key injection failed — is the AIRLABS_API_KEY secret set?"
-            exit 1
-          fi
+        run: echo "const AIRLABS_API_KEY = '${AIRLABS_KEY}';" > config.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
