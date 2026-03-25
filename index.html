@@ -267,7 +267,6 @@
 </div>
 <canvas id="confetti"></canvas>
 
-<script src="config.js"></script>
 <script>
 // ============================================================
 // FLIGHT CONFIG — edit these for each flight
@@ -281,6 +280,7 @@ const DEP_CITY          = 'Budapest';                      // Departure city nam
 const ARR_CODE          = 'MAD';                           // Arrival airport IATA
 const ARR_CITY          = 'Madrid';                        // Arrival city name
 const ARRIVAL_MESSAGE   = 'Madriii!';                      // Message shown when countdown hits zero
+const PROXY_URL         = 'https://flight-proxy.hamzamahjoubi221.workers.dev';
 // ============================================================
 
 const FALLBACK_TARGET = new Date(FALLBACK_ARRIVAL).getTime();
@@ -311,7 +311,7 @@ const ctx = canvas.getContext('2d');
 // ============================================================
 async function fetchFlightTimes() {
   try {
-    const url = `https://airlabs.co/api/v9/flight?flight_iata=${FLIGHT_IATA}&api_key=${AIRLABS_API_KEY}`;
+    const url = `${PROXY_URL}?flight_iata=${encodeURIComponent(FLIGHT_IATA)}`;
 
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
