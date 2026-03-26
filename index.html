@@ -224,6 +224,39 @@
     pointer-events: none;
     z-index: 10;
   }
+
+  /* --- Delay Indicator --- */
+  .delay-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    background: rgba(220, 38, 38, 0.08);
+    color: #dc2626;
+    font-size: 1.3vw;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    user-select: none;
+  }
+
+  .delay-badge.visible {
+    display: inline-flex;
+  }
+
+  .delay-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #dc2626;
+    animation: delay-pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes delay-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
 </style>
 </head>
 <body>
@@ -264,6 +297,10 @@
     </div>
   </div>
   <div id="countdown"></div>
+  <div id="delay-badge" class="delay-badge">
+    <span class="delay-dot"></span>
+    <span id="delay-text"></span>
+  </div>
   <div id="message" id="arrival-msg"></div>
 </div>
 <canvas id="confetti"></canvas>
@@ -344,11 +381,12 @@ async function fetchFlightTimes() {
     if (isNaN(arrival)) throw new Error('Invalid arrival time format');
 
     const isDelayed = flight.arr_delayed && flight.arr_delayed > 0;
+    const delayMinutes = isDelayed ? flight.arr_delayed : 0;
     console.log(`Flight ${FLIGHT_IATA}: dep UTC ${depStr}, arr UTC ${arrStr}${isDelayed ? ` (delayed ${flight.arr_delayed} min)` : ''}`);
-    return { departure, arrival };
+    return { departure, arrival, delayMinutes };
   } catch (err) {
     console.warn(`Failed to fetch flight data: ${err.message}. Using fallback times.`);
-    return { departure: FALLBACK_DEP, arrival: FALLBACK_TARGET };
+    return { departure: FALLBACK_DEP, arrival: FALLBACK_TARGET, delayMinutes: 0 };
   }
 }
 
@@ -356,8 +394,19 @@ async function fetchFlightTimes() {
 // Start the app
 // ============================================================
 async function init() {
-  const { departure: DEPARTURE, arrival: TARGET } = await fetchFlightTimes();
+  const { departure: DEPARTURE, arrival: TARGET, delayMinutes } = await fetchFlightTimes();
   const routePlaneEl = document.getElementById('route-plane');
+
+  // Show delay indicator if flight is delayed
+  if (delayMinutes > 0) {
+    const badge = document.getElementById('delay-badge');
+    const text = document.getElementById('delay-text');
+    const h = Math.floor(delayMinutes / 60);
+    const m = delayMinutes % 60;
+    const delayStr = h > 0 ? `${h}h ${m}min delay` : `${m}min delay`;
+    text.textContent = delayStr;
+    badge.classList.add('visible');
+  }
 
   // Fade out loading screen
   loadingEl.classList.add('fade-out');
@@ -501,6 +550,7 @@ async function init() {
         hasTriggered = true;
         countdownEl.style.display = 'none';
         routeEl.style.display = 'none';
+        document.getElementById('delay-badge').classList.remove('visible');
         messageEl.style.display = 'block';
         startConfetti();
       }
@@ -530,6 +580,7 @@ async function init() {
   if (Date.now() >= TARGET) {
     countdownEl.style.display = 'none';
     routeEl.style.display = 'none';
+    document.getElementById('delay-badge').classList.remove('visible');
     messageEl.style.display = 'block';
     hasTriggered = true;
     startConfetti();
