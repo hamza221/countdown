@@ -2,7 +2,7 @@ export default {
   async fetch(request, env) {
     // CORS: only allow your site
     const origin = request.headers.get('Origin') || '';
-    const allowed = env.ALLOWED_ORIGIN || 'https://zsofi.hamzamahjoubi.com';
+    const allowed = env.ALLOWED_ORIGIN || 'https://flights.hamzamahjoubi.com';
 
     if (origin && origin !== allowed) {
       return new Response('Forbidden', { status: 403 });
