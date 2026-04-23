@@ -4,7 +4,7 @@ export default {
     const origin = request.headers.get('Origin') || '';
     const allowed = env.ALLOWED_ORIGIN || 'https://flights.hamzamahjoubi.com';
 
-    if (origin && origin !== allowed) {
+    if (origin !== allowed) {
       return new Response('Forbidden', { status: 403 });
     }
 
