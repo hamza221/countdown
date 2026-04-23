@@ -174,17 +174,25 @@
     border-top: 2px dashed #d0d0d0;
   }
 
-  .route-plane {
+  .route-plane-mover {
     position: absolute;
-    left: 0%;
+    left: 0;
     top: 50%;
+    width: 100%;
+    height: 0;
+    display: flex;
+    align-items: center;
+    transition: transform 1s ease-out;
+    will-change: transform;
+  }
+
+  .route-plane {
     width: 2.5vw;
     height: 2.5vw;
     min-width: 18px;
     min-height: 18px;
     fill: #000000;
     transform: translate(-50%, -50%);
-    transition: left 1s ease-out;
   }
 
   @keyframes route-plane-bob {
@@ -287,9 +295,11 @@
     </div>
     <div class="route-line">
       <div class="route-track"></div>
-      <svg id="route-plane" class="route-plane" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(90 12 12)"/>
-      </svg>
+      <div id="route-plane-mover" class="route-plane-mover">
+        <svg id="route-plane" class="route-plane" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(90 12 12)"/>
+        </svg>
+      </div>
     </div>
     <div class="route-airport">
       <span class="route-code" id="arr-code"></span>
@@ -396,6 +406,7 @@ async function fetchFlightTimes() {
 async function init() {
   const { departure: DEPARTURE, arrival: TARGET, delayMinutes } = await fetchFlightTimes();
   const routePlaneEl = document.getElementById('route-plane');
+  const routePlaneMoverEl = document.getElementById('route-plane-mover');
 
   // Show delay indicator if flight is delayed
   if (delayMinutes > 0) {
@@ -517,16 +528,16 @@ async function init() {
   function updateRoutePlane(now) {
     if (now < DEPARTURE) {
       // Before departure: plane at start
-      routePlaneEl.style.left = '0%';
+      routePlaneMoverEl.style.transform = 'translateX(0%)';
       routePlaneEl.classList.remove('in-flight');
     } else if (now >= TARGET) {
       // After arrival: plane at end
-      routePlaneEl.style.left = '100%';
+      routePlaneMoverEl.style.transform = 'translateX(100%)';
       routePlaneEl.classList.remove('in-flight');
     } else {
       // In flight: interpolate position
       const progress = (now - DEPARTURE) / (TARGET - DEPARTURE);
-      routePlaneEl.style.left = (progress * 100) + '%';
+      routePlaneMoverEl.style.transform = `translateX(${progress * 100}%)`;
       routePlaneEl.classList.add('in-flight');
     }
   }
