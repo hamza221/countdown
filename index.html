@@ -17,11 +17,28 @@
     box-sizing: border-box;
   }
 
+  :root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --text-muted: #999999;
+    --track-color: #d0d0d0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --text-muted: #888888;
+      --track-color: #444444;
+    }
+  }
+
   html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #ffffff;
+    background: var(--bg-color);
+    color: var(--text-color);
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
   }
 
@@ -32,7 +49,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: #ffffff;
+    background: var(--bg-color);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -64,7 +81,7 @@
   .airplane svg {
     width: 64px;
     height: 64px;
-    fill: #000000;
+    fill: var(--text-color);
   }
 
   @keyframes airplane-float {
@@ -88,7 +105,7 @@
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: #000000;
+    background: var(--text-color);
     animation: contrail-pulse 1.4s ease-in-out infinite;
   }
 
@@ -103,7 +120,7 @@
 
   .loading-text {
     margin-top: 30px;
-    color: #000000;
+    color: var(--text-color);
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.08em;
@@ -139,14 +156,14 @@
   .route-code {
     font-size: 3.5vw;
     font-weight: 700;
-    color: #000000;
+    color: var(--text-color);
     letter-spacing: 0.05em;
   }
 
   .route-city {
     font-size: 1.4vw;
     font-weight: 400;
-    color: #999999;
+    color: var(--text-muted);
     letter-spacing: 0.02em;
   }
 
@@ -171,7 +188,7 @@
     left: 0;
     right: 0;
     height: 0;
-    border-top: 2px dashed #d0d0d0;
+    border-top: 2px dashed var(--track-color);
   }
 
   .route-plane-mover {
@@ -191,7 +208,7 @@
     height: 2.5vw;
     min-width: 18px;
     min-height: 18px;
-    fill: #000000;
+    fill: var(--text-color);
     transform: translate(-50%, -50%);
   }
 
@@ -205,7 +222,7 @@
   }
 
   #countdown {
-    color: #000000;
+    color: var(--text-color);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
@@ -217,7 +234,7 @@
 
   #message {
     display: none;
-    color: #000000;
+    color: var(--text-color);
     font-weight: 700;
     font-size: 8vw;
     text-align: center;
