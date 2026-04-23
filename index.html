@@ -445,8 +445,8 @@ async function init() {
       w: randomRange(6, 12),
       h: randomRange(4, 8),
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      rotation: randomRange(0, 360),
-      rotationSpeed: randomRange(-8, 8),
+      rotation: randomRange(0, 2 * Math.PI),
+      rotationSpeed: randomRange(-8 * Math.PI / 180, 8 * Math.PI / 180),
       vx: randomRange(-2, 2),
       vy: randomRange(2, 7),
       opacity: 1,
@@ -497,7 +497,7 @@ async function init() {
 
       ctx.save();
       ctx.translate(p.x, p.y);
-      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.rotate(p.rotation);
       ctx.globalAlpha = p.opacity;
       ctx.fillStyle = p.color;
       ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
