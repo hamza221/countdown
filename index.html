@@ -17,28 +17,11 @@
     box-sizing: border-box;
   }
 
-  :root {
-    --bg-color: #ffffff;
-    --text-color: #000000;
-    --text-muted: #999999;
-    --track-color: #d0d0d0;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg-color: #121212;
-      --text-color: #ffffff;
-      --text-muted: #888888;
-      --track-color: #444444;
-    }
-  }
-
   html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: var(--bg-color);
-    color: var(--text-color);
+    background: #ffffff;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
   }
 
@@ -49,7 +32,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--bg-color);
+    background: #ffffff;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -81,7 +64,7 @@
   .airplane svg {
     width: 64px;
     height: 64px;
-    fill: var(--text-color);
+    fill: #000000;
   }
 
   @keyframes airplane-float {
@@ -105,7 +88,7 @@
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: var(--text-color);
+    background: #000000;
     animation: contrail-pulse 1.4s ease-in-out infinite;
   }
 
@@ -120,7 +103,7 @@
 
   .loading-text {
     margin-top: 30px;
-    color: var(--text-color);
+    color: #000000;
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.08em;
@@ -156,14 +139,14 @@
   .route-code {
     font-size: 3.5vw;
     font-weight: 700;
-    color: var(--text-color);
+    color: #000000;
     letter-spacing: 0.05em;
   }
 
   .route-city {
     font-size: 1.4vw;
     font-weight: 400;
-    color: var(--text-muted);
+    color: #999999;
     letter-spacing: 0.02em;
   }
 
@@ -188,7 +171,7 @@
     left: 0;
     right: 0;
     height: 0;
-    border-top: 2px dashed var(--track-color);
+    border-top: 2px dashed #d0d0d0;
   }
 
   .route-plane-mover {
@@ -208,7 +191,7 @@
     height: 2.5vw;
     min-width: 18px;
     min-height: 18px;
-    fill: var(--text-color);
+    fill: #000000;
     transform: translate(-50%, -50%);
   }
 
@@ -222,7 +205,7 @@
   }
 
   #countdown {
-    color: var(--text-color);
+    color: #000000;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
@@ -234,7 +217,7 @@
 
   #message {
     display: none;
-    color: var(--text-color);
+    color: #000000;
     font-weight: 700;
     font-size: 8vw;
     text-align: center;
@@ -336,30 +319,20 @@
 // ============================================================
 // FLIGHT CONFIG — edit these for each flight
 // ============================================================
-const FLIGHT_IATA       = 'W62372';                        // Flight IATA code
-const FLIGHT_DATE       = '2026-04-20';                    // Departure date (YYYY-MM-DD)
-const FALLBACK_DEPARTURE = '2026-04-20T20:10:00Z';         // Scheduled departure in UTC (3:55 PM CET)
-const FALLBACK_ARRIVAL  = '2026-04-20T23:10:00Z';          // Scheduled arrival in UTC (7:30 PM CET)
-const DEP_CODE          = 'MAD';                           // Departure airport IATA
-const DEP_CITY          = 'Madrid';                      // Departure city name
-const ARR_CODE          = 'BUD';                           // Arrival airport IATA
-const ARR_CITY          = 'Budapest';                        // Arrival city name
-const ARRIVAL_MESSAGE   = 'Budaaaa!';                      // Message shown when countdown hits zero
+let FLIGHT_IATA       = 'W62372';                        // Flight IATA code
+let FLIGHT_DATE       = '2026-04-20';                    // Departure date (YYYY-MM-DD)
+let FALLBACK_DEPARTURE = '2026-04-20T20:10:00Z';         // Scheduled departure in UTC (3:55 PM CET)
+let FALLBACK_ARRIVAL  = '2026-04-20T23:10:00Z';          // Scheduled arrival in UTC (7:30 PM CET)
+let DEP_CODE          = 'MAD';                           // Departure airport IATA
+let DEP_CITY          = 'Madrid';                      // Departure city name
+let ARR_CODE          = 'BUD';                           // Arrival airport IATA
+let ARR_CITY          = 'Budapest';                        // Arrival city name
+let ARRIVAL_MESSAGE   = 'Budaaaa!';                      // Message shown when countdown hits zero
 const PROXY_URL         = 'https://flight-proxy.hamzamahjoubi221.workers.dev';
 // ============================================================
 
-const FALLBACK_TARGET = new Date(FALLBACK_ARRIVAL).getTime();
-const FALLBACK_DEP = new Date(FALLBACK_DEPARTURE).getTime();
-
-// ============================================================
-// Populate page from config
-// ============================================================
-document.getElementById('loading-text').textContent = `Tracking ${FLIGHT_IATA}`;
-document.getElementById('dep-code').textContent = DEP_CODE;
-document.getElementById('dep-city').textContent = DEP_CITY;
-document.getElementById('arr-code').textContent = ARR_CODE;
-document.getElementById('arr-city').textContent = ARR_CITY;
-document.getElementById('message').textContent = ARRIVAL_MESSAGE;
+let FALLBACK_TARGET;
+let FALLBACK_DEP;
 
 // ============================================================
 // DOM Elements
@@ -370,6 +343,43 @@ const messageEl = document.getElementById('message');
 const routeEl = document.getElementById('route');
 const canvas = document.getElementById('confetti');
 const ctx = canvas.getContext('2d');
+
+// ============================================================
+// Fetch Dynamic Config
+// ============================================================
+async function loadConfig() {
+  const params = new URLSearchParams(window.location.search);
+  const flightId = params.get('id');
+
+  if (flightId) {
+    try {
+      const res = await fetch(`${PROXY_URL}/api/flights/${flightId}`);
+      if (res.ok) {
+        const config = await res.json();
+        if (config.flight_iata) FLIGHT_IATA = config.flight_iata;
+        if (config.flight_date) FLIGHT_DATE = config.flight_date;
+        if (config.dep_code) DEP_CODE = config.dep_code;
+        if (config.dep_city) DEP_CITY = config.dep_city;
+        if (config.arr_code) ARR_CODE = config.arr_code;
+        if (config.arr_city) ARR_CITY = config.arr_city;
+        if (config.arrival_message) ARRIVAL_MESSAGE = config.arrival_message;
+      }
+    } catch (e) {
+      console.warn("Failed to load dynamic config, falling back to defaults.", e);
+    }
+  }
+
+  FALLBACK_TARGET = new Date(FALLBACK_ARRIVAL).getTime();
+  FALLBACK_DEP = new Date(FALLBACK_DEPARTURE).getTime();
+
+  document.getElementById('loading-text').textContent = `Tracking ${FLIGHT_IATA}`;
+  document.getElementById('dep-code').textContent = DEP_CODE;
+  document.getElementById('dep-city').textContent = DEP_CITY;
+  document.getElementById('arr-code').textContent = ARR_CODE;
+  document.getElementById('arr-city').textContent = ARR_CITY;
+  document.getElementById('message').textContent = ARRIVAL_MESSAGE;
+}
+
 
 // ============================================================
 // Fetch flight times from AirLabs (live delay updates)
@@ -421,6 +431,7 @@ async function fetchFlightTimes() {
 // Start the app
 // ============================================================
 async function init() {
+  await loadConfig();
   const { departure: DEPARTURE, arrival: TARGET, delayMinutes } = await fetchFlightTimes();
   const routePlaneEl = document.getElementById('route-plane');
   const routePlaneMoverEl = document.getElementById('route-plane-mover');
