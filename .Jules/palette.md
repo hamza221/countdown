@@ -1,0 +1,3 @@
+## 2024-05-24 - Screen reader alerts for dynamically loaded data
+**Learning:** When important status information (like a flight delay) is fetched asynchronously and added to the DOM after the initial page load, screen readers might miss it. Adding `role="alert"` and `aria-live="polite"` ensures this critical information is announced to users who depend on assistive technologies as soon as it appears.
+**Action:** Always verify if asynchronous status changes (like delays, errors, or success messages) need `role="alert"` or `aria-live` attributes to ensure they are communicated effectively to all users.
