@@ -289,7 +289,7 @@
 <!-- Loading Screen -->
 <div id="loading">
   <div class="airplane-wrapper">
-    <div class="airplane">
+    <div class="airplane" aria-hidden="true">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
       </svg>
@@ -313,7 +313,7 @@
     <div class="route-line">
       <div class="route-track"></div>
       <div id="route-plane-mover" class="route-plane-mover">
-        <svg id="route-plane" class="route-plane" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg id="route-plane" class="route-plane" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(90 12 12)"/>
         </svg>
       </div>
@@ -323,9 +323,9 @@
       <span class="route-city" id="arr-city"></span>
     </div>
   </div>
-  <div id="countdown"></div>
-  <div id="delay-badge" class="delay-badge">
-    <span class="delay-dot"></span>
+  <div id="countdown" role="timer"></div>
+  <div id="delay-badge" class="delay-badge" role="status" aria-live="polite">
+    <span class="delay-dot" aria-hidden="true"></span>
     <span id="delay-text"></span>
   </div>
   <div id="message" id="arrival-msg"></div>
@@ -596,6 +596,13 @@ async function init() {
 
     countdownEl.textContent =
       pad(days, 2) + ':' + pad(hours, 2) + ':' + pad(minutes, 2) + ':' + pad(seconds, 2) + ':' + pad(ms, 2);
+
+    // Update aria-label for accessibility
+    countdownEl.setAttribute('aria-label', `${days} days, ${hours} hours, ${minutes} minutes remaining`);
+
+    // Update document title for background tabs
+    const titleTime = days > 0 ? `${days}d ${hours}h` : `${hours}h ${minutes}m`;
+    document.title = `${titleTime} ✈️ ${ARR_CITY}`;
 
     requestAnimationFrame(tick);
   }
