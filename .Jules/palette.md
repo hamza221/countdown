@@ -1,0 +1,3 @@
+## 2024-04-28 - ARIA Landmark Insights for Dynamic States
+**Learning:** For dynamic progress tracking and single-page applications without explicit navigation, dynamically updating regions like loaders, active countdowns, and delay badges must correctly utilize ARIA roles (`role="status"`, `role="alert"`, `role="timer"`) along with `aria-live` to ensure screen readers actively announce state updates without disrupting user flow. Duplicate IDs can also create silent failures in DOM selection or a11y trees.
+**Action:** Always verify components that conditionally toggle visibility and regularly update values (like timers or API-driven alerts) have explicit ARIA live regions and roles so non-visual users maintain awareness of changing application states.
