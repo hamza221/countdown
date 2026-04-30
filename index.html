@@ -1,620 +1,712 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Countdown</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
-<style>
-  @font-face {
-    font-family: 'SF Pro Display';
-    src: local('-apple-system'), local('BlinkMacSystemFont'), local('SF Pro Display'), local('Helvetica Neue');
-  }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Countdown</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>"
+    />
+    <style>
+      @font-face {
+        font-family: "SF Pro Display";
+        src:
+          local("-apple-system"), local("BlinkMacSystemFont"),
+          local("SF Pro Display"), local("Helvetica Neue");
+      }
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-  :root {
-    --bg-color: #ffffff;
-    --text-color: #000000;
-    --text-muted: #999999;
-    --track-color: #d0d0d0;
-  }
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #000000;
+        --text-muted: #737373;
+        --track-color: #d0d0d0;
+      }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg-color: #121212;
-      --text-color: #ffffff;
-      --text-muted: #888888;
-      --track-color: #444444;
-    }
-  }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-color: #121212;
+          --text-color: #ffffff;
+          --text-muted: #888888;
+          --track-color: #444444;
+        }
+      }
 
-  html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: var(--bg-color);
-    color: var(--text-color);
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
-  }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg-color);
+        color: var(--text-color);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+          "Helvetica Neue", sans-serif;
+      }
 
-  /* --- Loading Screen --- */
-  #loading {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--bg-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    transition: opacity 0.6s ease;
-  }
+      /* --- Loading Screen --- */
+      #loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--bg-color);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        transition: opacity 0.6s ease;
+      }
 
-  #loading.fade-out {
-    opacity: 0;
-    pointer-events: none;
-  }
+      #loading.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
 
-  .airplane-wrapper {
-    width: 200px;
-    height: 120px;
-    position: relative;
-    overflow: visible;
-  }
+      .airplane-wrapper {
+        width: 200px;
+        height: 120px;
+        position: relative;
+        overflow: visible;
+      }
 
-  .airplane {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    animation: airplane-float 2s ease-in-out infinite;
-  }
+      .airplane {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        animation: airplane-float 2s ease-in-out infinite;
+      }
 
-  .airplane svg {
-    width: 64px;
-    height: 64px;
-    fill: var(--text-color);
-  }
+      .airplane svg {
+        width: 64px;
+        height: 64px;
+        fill: var(--text-color);
+      }
 
-  @keyframes airplane-float {
-    0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
-    50% { transform: translate(-50%, -50%) translateY(-10px); }
-  }
+      @keyframes airplane-float {
+        0%,
+        100% {
+          transform: translate(-50%, -50%) translateY(0px);
+        }
+        50% {
+          transform: translate(-50%, -50%) translateY(-10px);
+        }
+      }
 
-  /* Contrail dots behind airplane */
-  .contrail {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    gap: 8px;
-    margin-top: 2px;
-    margin-left: -50px;
-  }
+      /* Contrail dots behind airplane */
+      .contrail {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        gap: 8px;
+        margin-top: 2px;
+        margin-left: -50px;
+      }
 
-  .contrail span {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--text-color);
-    animation: contrail-pulse 1.4s ease-in-out infinite;
-  }
+      .contrail span {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--text-color);
+        animation: contrail-pulse 1.4s ease-in-out infinite;
+      }
 
-  .contrail span:nth-child(1) { animation-delay: 0s; opacity: 0.2; }
-  .contrail span:nth-child(2) { animation-delay: 0.2s; opacity: 0.35; }
-  .contrail span:nth-child(3) { animation-delay: 0.4s; opacity: 0.5; }
+      .contrail span:nth-child(1) {
+        animation-delay: 0s;
+        opacity: 0.2;
+      }
+      .contrail span:nth-child(2) {
+        animation-delay: 0.2s;
+        opacity: 0.35;
+      }
+      .contrail span:nth-child(3) {
+        animation-delay: 0.4s;
+        opacity: 0.5;
+      }
 
-  @keyframes contrail-pulse {
-    0%, 100% { opacity: 0.15; transform: scale(0.8); }
-    50% { opacity: 0.6; transform: scale(1.2); }
-  }
+      @keyframes contrail-pulse {
+        0%,
+        100% {
+          opacity: 0.15;
+          transform: scale(0.8);
+        }
+        50% {
+          opacity: 0.6;
+          transform: scale(1.2);
+        }
+      }
 
-  .loading-text {
-    margin-top: 30px;
-    color: var(--text-color);
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    animation: loading-fade 1.8s ease-in-out infinite;
-  }
+      .loading-text {
+        margin-top: 30px;
+        color: var(--text-color);
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        animation: loading-fade 1.8s ease-in-out infinite;
+      }
 
-  @keyframes loading-fade {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
-  }
+      @keyframes loading-fade {
+        0%,
+        100% {
+          opacity: 0.4;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
 
-  /* --- Main Content --- */
-  .container {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
+      /* --- Main Content --- */
+      .container {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
 
-  .route {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    user-select: none;
-  }
+      .route {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        user-select: none;
+      }
 
-  .route-code {
-    font-size: 3.5vw;
-    font-weight: 700;
-    color: var(--text-color);
-    letter-spacing: 0.05em;
-  }
+      .route-code {
+        font-size: 3.5vw;
+        font-weight: 700;
+        color: var(--text-color);
+        letter-spacing: 0.05em;
+      }
 
-  .route-city {
-    font-size: 1.4vw;
-    font-weight: 400;
-    color: var(--text-muted);
-    letter-spacing: 0.02em;
-  }
+      .route-city {
+        font-size: 1.4vw;
+        font-weight: 400;
+        color: var(--text-muted);
+        letter-spacing: 0.02em;
+      }
 
-  .route-airport {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-  }
+      .route-airport {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
 
-  .route-line {
-    position: relative;
-    width: 20vw;
-    height: 2.5vw;
-    min-height: 18px;
-    display: flex;
-    align-items: center;
-  }
+      .route-line {
+        position: relative;
+        width: 20vw;
+        height: 2.5vw;
+        min-height: 18px;
+        display: flex;
+        align-items: center;
+      }
 
-  .route-track {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 0;
-    border-top: 2px dashed var(--track-color);
-  }
+      .route-track {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 0;
+        border-top: 2px dashed var(--track-color);
+      }
 
-  .route-plane-mover {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 100%;
-    height: 0;
-    display: flex;
-    align-items: center;
-    transition: transform 1s ease-out;
-    will-change: transform;
-  }
+      .route-plane-mover {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 100%;
+        height: 0;
+        display: flex;
+        align-items: center;
+        transition: transform 1s ease-out;
+        will-change: transform;
+      }
 
-  .route-plane {
-    width: 2.5vw;
-    height: 2.5vw;
-    min-width: 18px;
-    min-height: 18px;
-    fill: var(--text-color);
-    transform: translate(-50%, -50%);
-  }
+      .route-plane {
+        width: 2.5vw;
+        height: 2.5vw;
+        min-width: 18px;
+        min-height: 18px;
+        fill: var(--text-color);
+        transform: translate(-50%, -50%);
+      }
 
-  @keyframes route-plane-bob {
-    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
-    50% { transform: translate(-50%, -50%) translateY(-3px); }
-  }
+      @keyframes route-plane-bob {
+        0%,
+        100% {
+          transform: translate(-50%, -50%) translateY(0);
+        }
+        50% {
+          transform: translate(-50%, -50%) translateY(-3px);
+        }
+      }
 
-  .route-plane.in-flight {
-    animation: route-plane-bob 2s ease-in-out infinite;
-  }
+      .route-plane.in-flight {
+        animation: route-plane-bob 2s ease-in-out infinite;
+      }
 
-  #countdown {
-    color: var(--text-color);
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
-    white-space: nowrap;
-    width: 90vw;
-    text-align: center;
-    font-size: 10vw;
-  }
+      #countdown {
+        color: var(--text-color);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+        width: 90vw;
+        text-align: center;
+        font-size: 10vw;
+      }
 
-  #message {
-    display: none;
-    color: var(--text-color);
-    font-weight: 700;
-    font-size: 8vw;
-    text-align: center;
-  }
+      #message {
+        display: none;
+        color: var(--text-color);
+        font-weight: 700;
+        font-size: 8vw;
+        text-align: center;
+      }
 
-  canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 10;
-  }
+      canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+      }
 
-  /* --- Delay Indicator --- */
-  .delay-badge {
-    display: none;
-    align-items: center;
-    gap: 6px;
-    margin-top: 14px;
-    padding: 6px 16px;
-    border-radius: 20px;
-    background: rgba(220, 38, 38, 0.08);
-    color: #dc2626;
-    font-size: 1.3vw;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    user-select: none;
-  }
+      /* --- Delay Indicator --- */
+      .delay-badge {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        margin-top: 14px;
+        padding: 6px 16px;
+        border-radius: 20px;
+        background: rgba(220, 38, 38, 0.08);
+        color: #dc2626;
+        font-size: 1.3vw;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        user-select: none;
+      }
 
-  .delay-badge.visible {
-    display: inline-flex;
-  }
+      .delay-badge.visible {
+        display: inline-flex;
+      }
 
-  .delay-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #dc2626;
-    animation: delay-pulse 1.5s ease-in-out infinite;
-  }
+      .delay-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #dc2626;
+        animation: delay-pulse 1.5s ease-in-out infinite;
+      }
 
-  @keyframes delay-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-</style>
-</head>
-<body>
-
-<!-- Loading Screen -->
-<div id="loading">
-  <div class="airplane-wrapper">
-    <div class="airplane">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-      </svg>
-    </div>
-    <div class="contrail">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-  </div>
-  <div class="loading-text" id="loading-text"></div>
-</div>
-
-<!-- Main Content -->
-<div class="container">
-  <div id="route" class="route">
-    <div class="route-airport">
-      <span class="route-code" id="dep-code"></span>
-      <span class="route-city" id="dep-city"></span>
-    </div>
-    <div class="route-line">
-      <div class="route-track"></div>
-      <div id="route-plane-mover" class="route-plane-mover">
-        <svg id="route-plane" class="route-plane" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(90 12 12)"/>
-        </svg>
+      @keyframes delay-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div id="loading" role="status" aria-live="polite">
+      <div class="airplane-wrapper">
+        <div class="airplane">
+          <svg
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
+            />
+          </svg>
+        </div>
+        <div class="contrail">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
+      <div class="loading-text" id="loading-text"></div>
     </div>
-    <div class="route-airport">
-      <span class="route-code" id="arr-code"></span>
-      <span class="route-city" id="arr-city"></span>
+
+    <!-- Main Content -->
+    <div class="container">
+      <div id="route" class="route">
+        <div class="route-airport">
+          <span class="route-code" id="dep-code"></span>
+          <span class="route-city" id="dep-city"></span>
+        </div>
+        <div class="route-line">
+          <div class="route-track"></div>
+          <div id="route-plane-mover" class="route-plane-mover">
+            <svg
+              id="route-plane"
+              class="route-plane"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
+                transform="rotate(90 12 12)"
+              />
+            </svg>
+          </div>
+        </div>
+        <div class="route-airport">
+          <span class="route-code" id="arr-code"></span>
+          <span class="route-city" id="arr-city"></span>
+        </div>
+      </div>
+      <div id="countdown" role="timer" aria-label="Time until arrival"></div>
+      <div id="delay-badge" class="delay-badge" role="alert">
+        <span class="delay-dot"></span>
+        <span id="delay-text"></span>
+      </div>
+      <div id="message" role="status" aria-live="polite"></div>
     </div>
-  </div>
-  <div id="countdown"></div>
-  <div id="delay-badge" class="delay-badge">
-    <span class="delay-dot"></span>
-    <span id="delay-text"></span>
-  </div>
-  <div id="message" id="arrival-msg"></div>
-</div>
-<canvas id="confetti"></canvas>
+    <canvas id="confetti"></canvas>
 
-<script>
-// ============================================================
-// FLIGHT CONFIG — edit these for each flight
-// ============================================================
-const FLIGHT_IATA       = 'W62372';                        // Flight IATA code
-const FLIGHT_DATE       = '2026-04-20';                    // Departure date (YYYY-MM-DD)
-const FALLBACK_DEPARTURE = '2026-04-20T20:10:00Z';         // Scheduled departure in UTC (3:55 PM CET)
-const FALLBACK_ARRIVAL  = '2026-04-20T23:10:00Z';          // Scheduled arrival in UTC (7:30 PM CET)
-const DEP_CODE          = 'MAD';                           // Departure airport IATA
-const DEP_CITY          = 'Madrid';                      // Departure city name
-const ARR_CODE          = 'BUD';                           // Arrival airport IATA
-const ARR_CITY          = 'Budapest';                        // Arrival city name
-const ARRIVAL_MESSAGE   = 'Budaaaa!';                      // Message shown when countdown hits zero
-const PROXY_URL         = 'https://flight-proxy.hamzamahjoubi221.workers.dev';
-// ============================================================
+    <script>
+      // ============================================================
+      // FLIGHT CONFIG — edit these for each flight
+      // ============================================================
+      const FLIGHT_IATA = "W62372"; // Flight IATA code
+      const FLIGHT_DATE = "2026-04-20"; // Departure date (YYYY-MM-DD)
+      const FALLBACK_DEPARTURE = "2026-04-20T20:10:00Z"; // Scheduled departure in UTC (3:55 PM CET)
+      const FALLBACK_ARRIVAL = "2026-04-20T23:10:00Z"; // Scheduled arrival in UTC (7:30 PM CET)
+      const DEP_CODE = "MAD"; // Departure airport IATA
+      const DEP_CITY = "Madrid"; // Departure city name
+      const ARR_CODE = "BUD"; // Arrival airport IATA
+      const ARR_CITY = "Budapest"; // Arrival city name
+      const ARRIVAL_MESSAGE = "Budaaaa!"; // Message shown when countdown hits zero
+      const PROXY_URL = "https://flight-proxy.hamzamahjoubi221.workers.dev";
+      // ============================================================
 
-const FALLBACK_TARGET = new Date(FALLBACK_ARRIVAL).getTime();
-const FALLBACK_DEP = new Date(FALLBACK_DEPARTURE).getTime();
+      const FALLBACK_TARGET = new Date(FALLBACK_ARRIVAL).getTime();
+      const FALLBACK_DEP = new Date(FALLBACK_DEPARTURE).getTime();
 
-// ============================================================
-// Populate page from config
-// ============================================================
-document.getElementById('loading-text').textContent = `Tracking ${FLIGHT_IATA}`;
-document.getElementById('dep-code').textContent = DEP_CODE;
-document.getElementById('dep-city').textContent = DEP_CITY;
-document.getElementById('arr-code').textContent = ARR_CODE;
-document.getElementById('arr-city').textContent = ARR_CITY;
-document.getElementById('message').textContent = ARRIVAL_MESSAGE;
+      // ============================================================
+      // Populate page from config
+      // ============================================================
+      document.getElementById("loading-text").textContent =
+        `Tracking ${FLIGHT_IATA}`;
+      document.getElementById("dep-code").textContent = DEP_CODE;
+      document.getElementById("dep-city").textContent = DEP_CITY;
+      document.getElementById("arr-code").textContent = ARR_CODE;
+      document.getElementById("arr-city").textContent = ARR_CITY;
+      document.getElementById("message").textContent = ARRIVAL_MESSAGE;
 
-// ============================================================
-// DOM Elements
-// ============================================================
-const loadingEl = document.getElementById('loading');
-const countdownEl = document.getElementById('countdown');
-const messageEl = document.getElementById('message');
-const routeEl = document.getElementById('route');
-const canvas = document.getElementById('confetti');
-const ctx = canvas.getContext('2d');
+      // ============================================================
+      // DOM Elements
+      // ============================================================
+      const loadingEl = document.getElementById("loading");
+      const countdownEl = document.getElementById("countdown");
+      const messageEl = document.getElementById("message");
+      const routeEl = document.getElementById("route");
+      const canvas = document.getElementById("confetti");
+      const ctx = canvas.getContext("2d");
 
-// ============================================================
-// Fetch flight times from AirLabs (live delay updates)
-// ============================================================
-async function fetchFlightTimes() {
-  try {
-    const url = `${PROXY_URL}?flight_iata=${encodeURIComponent(FLIGHT_IATA)}`;
+      // ============================================================
+      // Fetch flight times from AirLabs (live delay updates)
+      // ============================================================
+      async function fetchFlightTimes() {
+        try {
+          const url = `${PROXY_URL}?flight_iata=${encodeURIComponent(FLIGHT_IATA)}`;
 
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    const data = await response.json();
+          const data = await response.json();
 
-    if (data.error) throw new Error(data.error.message || 'API error');
-    if (!data.response) throw new Error('No flight data found');
+          if (data.error) throw new Error(data.error.message || "API error");
+          if (!data.response) throw new Error("No flight data found");
 
-    const flight = data.response;
+          const flight = data.response;
 
-    // Only accept if the flight is for our target date
-    const depTime = flight.dep_time_utc || flight.dep_time || '';
-    if (!depTime.startsWith(FLIGHT_DATE)) {
-      throw new Error(`API returned flight for ${depTime.slice(0, 10)}, not ${FLIGHT_DATE}. Using fallback.`);
-    }
+          // Only accept if the flight is for our target date
+          const depTime = flight.dep_time_utc || flight.dep_time || "";
+          if (!depTime.startsWith(FLIGHT_DATE)) {
+            throw new Error(
+              `API returned flight for ${depTime.slice(0, 10)}, not ${FLIGHT_DATE}. Using fallback.`,
+            );
+          }
 
-    // Departure: prefer estimated, then scheduled
-    const depStr = flight.dep_estimated_utc || flight.dep_time_utc;
-    const departure = depStr
-      ? new Date(depStr.replace(' ', 'T') + ':00Z').getTime()
-      : FALLBACK_DEP;
+          // Departure: prefer estimated, then scheduled
+          const depStr = flight.dep_estimated_utc || flight.dep_time_utc;
+          const departure = depStr
+            ? new Date(depStr.replace(" ", "T") + ":00Z").getTime()
+            : FALLBACK_DEP;
 
-    // Arrival: prefer estimated (accounts for delays), then scheduled
-    const arrStr = flight.arr_estimated_utc || flight.arr_time_utc;
-    if (!arrStr) throw new Error('No arrival time in response');
+          // Arrival: prefer estimated (accounts for delays), then scheduled
+          const arrStr = flight.arr_estimated_utc || flight.arr_time_utc;
+          if (!arrStr) throw new Error("No arrival time in response");
 
-    const arrival = new Date(arrStr.replace(' ', 'T') + ':00Z').getTime();
-    if (isNaN(arrival)) throw new Error('Invalid arrival time format');
+          const arrival = new Date(arrStr.replace(" ", "T") + ":00Z").getTime();
+          if (isNaN(arrival)) throw new Error("Invalid arrival time format");
 
-    const isDelayed = flight.arr_delayed && flight.arr_delayed > 0;
-    const delayMinutes = isDelayed ? flight.arr_delayed : 0;
-    console.log(`Flight ${FLIGHT_IATA}: dep UTC ${depStr}, arr UTC ${arrStr}${isDelayed ? ` (delayed ${flight.arr_delayed} min)` : ''}`);
-    return { departure, arrival, delayMinutes };
-  } catch (err) {
-    console.warn(`Failed to fetch flight data: ${err.message}. Using fallback times.`);
-    return { departure: FALLBACK_DEP, arrival: FALLBACK_TARGET, delayMinutes: 0 };
-  }
-}
-
-// ============================================================
-// Start the app
-// ============================================================
-async function init() {
-  const { departure: DEPARTURE, arrival: TARGET, delayMinutes } = await fetchFlightTimes();
-  const routePlaneEl = document.getElementById('route-plane');
-  const routePlaneMoverEl = document.getElementById('route-plane-mover');
-
-  // Show delay indicator if flight is delayed
-  if (delayMinutes > 0) {
-    const badge = document.getElementById('delay-badge');
-    const text = document.getElementById('delay-text');
-    const h = Math.floor(delayMinutes / 60);
-    const m = delayMinutes % 60;
-    const delayStr = h > 0 ? `${h}h ${m}min delay` : `${m}min delay`;
-    text.textContent = delayStr;
-    badge.classList.add('visible');
-  }
-
-  // Fade out loading screen
-  loadingEl.classList.add('fade-out');
-  setTimeout(() => {
-    loadingEl.style.display = 'none';
-  }, 600);
-
-  // --- Confetti ---
-  let confettiPieces = [];
-  let confettiActive = false;
-  let confettiSpawnTimer = 0;
-  const COLORS = [
-    '#FF1461', '#18FF92', '#5A87FF', '#FBF38C',
-    '#FF7A00', '#A855F7', '#00D4FF', '#FF4D6D',
-    '#22D3EE', '#FACC15', '#FB923C', '#34D399'
-  ];
-
-  function resizeCanvas() {
-    canvas.width = window.innerWidth * devicePixelRatio;
-    canvas.height = window.innerHeight * devicePixelRatio;
-    ctx.scale(devicePixelRatio, devicePixelRatio);
-    canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = window.innerHeight + 'px';
-  }
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  function randomRange(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  function createConfettiPiece() {
-    return {
-      x: randomRange(0, window.innerWidth),
-      y: randomRange(-20, -200),
-      w: randomRange(6, 12),
-      h: randomRange(4, 8),
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      rotation: randomRange(0, 360),
-      rotationSpeed: randomRange(-8, 8),
-      vx: randomRange(-2, 2),
-      vy: randomRange(2, 7),
-      opacity: 1,
-      wobble: randomRange(0, Math.PI * 2),
-      wobbleSpeed: randomRange(0.03, 0.08),
-    };
-  }
-
-  function startConfetti() {
-    if (confettiActive) return;
-    confettiActive = true;
-    confettiPieces = [];
-    for (let i = 0; i < 200; i++) {
-      const p = createConfettiPiece();
-      p.y = randomRange(-window.innerHeight, window.innerHeight);
-      confettiPieces.push(p);
-    }
-    confettiSpawnTimer = 0;
-    animateConfetti();
-  }
-
-  function animateConfetti() {
-    if (!confettiActive) return;
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-    confettiSpawnTimer++;
-    if (confettiSpawnTimer < 180) {
-      for (let i = 0; i < 5; i++) {
-        confettiPieces.push(createConfettiPiece());
-      }
-    }
-
-    for (let i = confettiPieces.length - 1; i >= 0; i--) {
-      const p = confettiPieces[i];
-      p.x += p.vx + Math.sin(p.wobble) * 0.5;
-      p.y += p.vy;
-      p.rotation += p.rotationSpeed;
-      p.wobble += p.wobbleSpeed;
-
-      if (p.y > window.innerHeight + 50) {
-        p.opacity -= 0.05;
+          const isDelayed = flight.arr_delayed && flight.arr_delayed > 0;
+          const delayMinutes = isDelayed ? flight.arr_delayed : 0;
+          console.log(
+            `Flight ${FLIGHT_IATA}: dep UTC ${depStr}, arr UTC ${arrStr}${isDelayed ? ` (delayed ${flight.arr_delayed} min)` : ""}`,
+          );
+          return { departure, arrival, delayMinutes };
+        } catch (err) {
+          console.warn(
+            `Failed to fetch flight data: ${err.message}. Using fallback times.`,
+          );
+          return {
+            departure: FALLBACK_DEP,
+            arrival: FALLBACK_TARGET,
+            delayMinutes: 0,
+          };
+        }
       }
 
-      if (p.opacity <= 0) {
-        confettiPieces.splice(i, 1);
-        continue;
+      // ============================================================
+      // Start the app
+      // ============================================================
+      async function init() {
+        const {
+          departure: DEPARTURE,
+          arrival: TARGET,
+          delayMinutes,
+        } = await fetchFlightTimes();
+        const routePlaneEl = document.getElementById("route-plane");
+        const routePlaneMoverEl = document.getElementById("route-plane-mover");
+
+        // Show delay indicator if flight is delayed
+        if (delayMinutes > 0) {
+          const badge = document.getElementById("delay-badge");
+          const text = document.getElementById("delay-text");
+          const h = Math.floor(delayMinutes / 60);
+          const m = delayMinutes % 60;
+          const delayStr = h > 0 ? `${h}h ${m}min delay` : `${m}min delay`;
+          text.textContent = delayStr;
+          badge.classList.add("visible");
+        }
+
+        // Fade out loading screen
+        loadingEl.classList.add("fade-out");
+        setTimeout(() => {
+          loadingEl.style.display = "none";
+        }, 600);
+
+        // --- Confetti ---
+        let confettiPieces = [];
+        let confettiActive = false;
+        let confettiSpawnTimer = 0;
+        const COLORS = [
+          "#FF1461",
+          "#18FF92",
+          "#5A87FF",
+          "#FBF38C",
+          "#FF7A00",
+          "#A855F7",
+          "#00D4FF",
+          "#FF4D6D",
+          "#22D3EE",
+          "#FACC15",
+          "#FB923C",
+          "#34D399",
+        ];
+
+        function resizeCanvas() {
+          canvas.width = window.innerWidth * devicePixelRatio;
+          canvas.height = window.innerHeight * devicePixelRatio;
+          ctx.scale(devicePixelRatio, devicePixelRatio);
+          canvas.style.width = window.innerWidth + "px";
+          canvas.style.height = window.innerHeight + "px";
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+
+        function randomRange(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        function createConfettiPiece() {
+          return {
+            x: randomRange(0, window.innerWidth),
+            y: randomRange(-20, -200),
+            w: randomRange(6, 12),
+            h: randomRange(4, 8),
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+            rotation: randomRange(0, 360),
+            rotationSpeed: randomRange(-8, 8),
+            vx: randomRange(-2, 2),
+            vy: randomRange(2, 7),
+            opacity: 1,
+            wobble: randomRange(0, Math.PI * 2),
+            wobbleSpeed: randomRange(0.03, 0.08),
+          };
+        }
+
+        function startConfetti() {
+          if (confettiActive) return;
+          confettiActive = true;
+          confettiPieces = [];
+          for (let i = 0; i < 200; i++) {
+            const p = createConfettiPiece();
+            p.y = randomRange(-window.innerHeight, window.innerHeight);
+            confettiPieces.push(p);
+          }
+          confettiSpawnTimer = 0;
+          animateConfetti();
+        }
+
+        function animateConfetti() {
+          if (!confettiActive) return;
+          ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+          confettiSpawnTimer++;
+          if (confettiSpawnTimer < 180) {
+            for (let i = 0; i < 5; i++) {
+              confettiPieces.push(createConfettiPiece());
+            }
+          }
+
+          for (let i = confettiPieces.length - 1; i >= 0; i--) {
+            const p = confettiPieces[i];
+            p.x += p.vx + Math.sin(p.wobble) * 0.5;
+            p.y += p.vy;
+            p.rotation += p.rotationSpeed;
+            p.wobble += p.wobbleSpeed;
+
+            if (p.y > window.innerHeight + 50) {
+              p.opacity -= 0.05;
+            }
+
+            if (p.opacity <= 0) {
+              confettiPieces.splice(i, 1);
+              continue;
+            }
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.globalAlpha = p.opacity;
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+            ctx.restore();
+          }
+
+          if (confettiPieces.length === 0 && confettiSpawnTimer >= 180) {
+            confettiActive = false;
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            return;
+          }
+
+          requestAnimationFrame(animateConfetti);
+        }
+
+        // --- Route plane progress ---
+        function updateRoutePlane(now) {
+          if (now < DEPARTURE) {
+            // Before departure: plane at start
+            routePlaneMoverEl.style.transform = "translateX(0%)";
+            routePlaneEl.classList.remove("in-flight");
+          } else if (now >= TARGET) {
+            // After arrival: plane at end
+            routePlaneMoverEl.style.transform = "translateX(100%)";
+            routePlaneEl.classList.remove("in-flight");
+          } else {
+            // In flight: interpolate position
+            const progress = (now - DEPARTURE) / (TARGET - DEPARTURE);
+            routePlaneMoverEl.style.transform = `translateX(${progress * 100}%)`;
+            routePlaneEl.classList.add("in-flight");
+          }
+        }
+
+        // --- Countdown ---
+        function pad(n, d) {
+          return String(n).padStart(d, "0");
+        }
+
+        let hasTriggered = false;
+
+        function tick() {
+          const now = Date.now();
+          const diff = TARGET - now;
+
+          updateRoutePlane(now);
+
+          if (diff <= 0) {
+            countdownEl.textContent = "00:00:00:00:00";
+            if (!hasTriggered) {
+              hasTriggered = true;
+              countdownEl.style.display = "none";
+              routeEl.style.display = "none";
+              document
+                .getElementById("delay-badge")
+                .classList.remove("visible");
+              messageEl.style.display = "block";
+              startConfetti();
+            }
+            return;
+          }
+
+          const ms = Math.floor((diff % 1000) / 10);
+          const totalSeconds = Math.floor(diff / 1000);
+          const seconds = totalSeconds % 60;
+          const totalMinutes = Math.floor(totalSeconds / 60);
+          const minutes = totalMinutes % 60;
+          const totalHours = Math.floor(totalMinutes / 60);
+          const hours = totalHours % 24;
+          const days = Math.floor(totalHours / 24);
+
+          countdownEl.textContent =
+            pad(days, 2) +
+            ":" +
+            pad(hours, 2) +
+            ":" +
+            pad(minutes, 2) +
+            ":" +
+            pad(seconds, 2) +
+            ":" +
+            pad(ms, 2);
+
+          requestAnimationFrame(tick);
+        }
+
+        // On load: if already past target, show message + confetti immediately
+        if (Date.now() >= TARGET) {
+          countdownEl.style.display = "none";
+          routeEl.style.display = "none";
+          document.getElementById("delay-badge").classList.remove("visible");
+          messageEl.style.display = "block";
+          hasTriggered = true;
+          startConfetti();
+        } else {
+          requestAnimationFrame(tick);
+        }
       }
 
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate((p.rotation * Math.PI) / 180);
-      ctx.globalAlpha = p.opacity;
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-      ctx.restore();
-    }
-
-    if (confettiPieces.length === 0 && confettiSpawnTimer >= 180) {
-      confettiActive = false;
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      return;
-    }
-
-    requestAnimationFrame(animateConfetti);
-  }
-
-  // --- Route plane progress ---
-  function updateRoutePlane(now) {
-    if (now < DEPARTURE) {
-      // Before departure: plane at start
-      routePlaneMoverEl.style.transform = 'translateX(0%)';
-      routePlaneEl.classList.remove('in-flight');
-    } else if (now >= TARGET) {
-      // After arrival: plane at end
-      routePlaneMoverEl.style.transform = 'translateX(100%)';
-      routePlaneEl.classList.remove('in-flight');
-    } else {
-      // In flight: interpolate position
-      const progress = (now - DEPARTURE) / (TARGET - DEPARTURE);
-      routePlaneMoverEl.style.transform = `translateX(${progress * 100}%)`;
-      routePlaneEl.classList.add('in-flight');
-    }
-  }
-
-  // --- Countdown ---
-  function pad(n, d) {
-    return String(n).padStart(d, '0');
-  }
-
-  let hasTriggered = false;
-
-  function tick() {
-    const now = Date.now();
-    const diff = TARGET - now;
-
-    updateRoutePlane(now);
-
-    if (diff <= 0) {
-      countdownEl.textContent = '00:00:00:00:00';
-      if (!hasTriggered) {
-        hasTriggered = true;
-        countdownEl.style.display = 'none';
-        routeEl.style.display = 'none';
-        document.getElementById('delay-badge').classList.remove('visible');
-        messageEl.style.display = 'block';
-        startConfetti();
-      }
-      return;
-    }
-
-    const ms = Math.floor((diff % 1000) / 10);
-    const totalSeconds = Math.floor(diff / 1000);
-    const seconds = totalSeconds % 60;
-    const totalMinutes = Math.floor(totalSeconds / 60);
-    const minutes = totalMinutes % 60;
-    const totalHours = Math.floor(totalMinutes / 60);
-    const hours = totalHours % 24;
-    const days = Math.floor(totalHours / 24);
-
-    countdownEl.textContent =
-      pad(days, 2) + ':' + pad(hours, 2) + ':' + pad(minutes, 2) + ':' + pad(seconds, 2) + ':' + pad(ms, 2);
-
-    requestAnimationFrame(tick);
-  }
-
-  // On load: if already past target, show message + confetti immediately
-  if (Date.now() >= TARGET) {
-    countdownEl.style.display = 'none';
-    routeEl.style.display = 'none';
-    document.getElementById('delay-badge').classList.remove('visible');
-    messageEl.style.display = 'block';
-    hasTriggered = true;
-    startConfetti();
-  } else {
-    requestAnimationFrame(tick);
-  }
-}
-
-// Start everything
-init();
-</script>
-</body>
+      // Start everything
+      init();
+    </script>
+  </body>
 </html>

@@ -1,0 +1,3 @@
+## 2024-05-18 - Visual Trackers and ARIA
+**Learning:** Visual-heavy real-time trackers (like planes on paths, dynamically updating numbers, delay badges) require explicit ARIA labeling, roles (`timer`, `status`, `alert`), and decorative element masking (`aria-hidden`) to be semantically accessible and prevent cognitive overload for screen reader users. Simply rendering visuals and timers is not enough.
+**Action:** When adding or modifying real-time countdowns or visual progress indicators, ensure to apply appropriate `role`s (`timer`, `status`), `aria-live` attributes, and mask purely decorative elements with `aria-hidden="true"`.
