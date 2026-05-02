@@ -1,0 +1,3 @@
+## 2024-05-02 - Flight Tracker Accessibility Learnings
+**Learning:** Decorative SVG elements (like airplanes and route tracks) in visual flight trackers must be explicitly marked with `aria-hidden="true"` to avoid screen reader clutter. Additionally, dynamic countdowns and flight delay badges require `aria-live` and appropriate roles (like `role="status"` or `role="alert"`) so updates are announced without requiring a page refresh.
+**Action:** When implementing custom visual progress indicators, audit all decorative graphical elements for `aria-hidden="true"`, ensure text contrast (e.g., muted text > 4.5:1), and attach `aria-live` regions to dynamic update containers.
