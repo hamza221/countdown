@@ -287,7 +287,7 @@
 <body>
 
 <!-- Loading Screen -->
-<div id="loading">
+<div id="loading" role="status" aria-live="polite">
   <div class="airplane-wrapper">
     <div class="airplane">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -324,11 +324,11 @@
     </div>
   </div>
   <div id="countdown"></div>
-  <div id="delay-badge" class="delay-badge">
+  <div id="delay-badge" class="delay-badge" role="status" aria-live="polite">
     <span class="delay-dot"></span>
     <span id="delay-text"></span>
   </div>
-  <div id="message" id="arrival-msg"></div>
+  <div id="message" role="status" aria-live="polite"></div>
 </div>
 <canvas id="confetti"></canvas>
 
