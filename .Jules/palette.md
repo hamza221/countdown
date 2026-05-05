@@ -1,0 +1,3 @@
+## 2024-05-24 - Screen reader support for delayed flights
+**Learning:** For dynamic UI elements that update asynchronously without page reloads (e.g., loading states, delay badges), we need to ensure screen readers monitor and announce the changes. Additionally, decorative elements like icons that are redundant with text should be hidden to reduce screen reader noise.
+**Action:** Always add `role="status"` and `aria-live="polite"` (or `assertive`) to async-updating dynamic status elements. Always add `aria-hidden="true"` to decorative SVGs/icons.
