@@ -1,0 +1,3 @@
+## 2024-05-08 - Accessible Dynamic States & Decorative Elements
+**Learning:** Dynamic UI elements that update asynchronously without page reloads (e.g., loading states, delay badges) require `role="status"` and `aria-live="polite"` (or `assertive`) to ensure screen readers monitor and announce the changes. Additionally, decorative SVGs and icons (like loading animations and route markers) must be hidden from screen readers using `aria-hidden="true"` to prevent visual clutter from becoming auditory noise.
+**Action:** Always add `role="status"` and `aria-live` attributes to dynamic text updates, and `aria-hidden="true"` to purely decorative graphical elements to improve the screen reader experience.
