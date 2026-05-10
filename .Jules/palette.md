@@ -1,0 +1,3 @@
+## 2024-05-10 - Screen Reader Accessibility for Async States
+**Learning:** For dynamic UI elements that update asynchronously without page reloads (e.g., loading states, delay badges), it's crucial to add `role="status"` and `aria-live="polite"` (or `assertive`) to ensure screen readers actively monitor and announce the changes. Additionally, decorative SVG icons should always have `aria-hidden="true"` to prevent redundant screen reader announcements.
+**Action:** Always add appropriate ARIA live region attributes (`role="status"`, `aria-live`) to components that reflect background state changes, and ensure purely decorative SVGs are explicitly hidden from the accessibility tree.
