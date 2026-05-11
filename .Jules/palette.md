@@ -1,0 +1,3 @@
+## 2026-05-11 - Accessibility Attributes for Dynamic Elements and SVGs
+**Learning:** For dynamic UI elements that update asynchronously without page reloads (e.g., loading states, delay badges, arrival messages), it is critical to add `role="status"` and `aria-live="polite"` to ensure screen readers monitor and announce the changes. Additionally, decorative SVGs and icons must have `aria-hidden="true"` so they are ignored by screen readers, reducing unnecessary noise.
+**Action:** Always add `role="status"` and `aria-live="polite"` to dynamically appearing/updating status containers, and `aria-hidden="true"` to non-informative SVG elements.
