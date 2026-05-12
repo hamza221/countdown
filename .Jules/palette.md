@@ -1,0 +1,3 @@
+## 2024-05-12 - Ensure screen readers announce dynamic states and hide decorative elements
+**Learning:** For dynamic UI elements that update asynchronously without page reloads (e.g., loading states, delay badges), screen readers won't announce the changes unless they are explicitly told to. Also, decorative elements like SVGs can cause screen readers to read out raw code or meaningless descriptions.
+**Action:** Always add `role="status"` and `aria-live="polite"` (or `assertive`) to dynamic elements like loaders and badges to ensure they are monitored and announced by screen readers. Additionally, always add `aria-hidden="true"` to decorative SVGs and icons so they are skipped by screen readers.
