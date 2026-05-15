@@ -290,7 +290,7 @@
 <div id="loading">
   <div class="airplane-wrapper">
     <div class="airplane">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <svg aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
       </svg>
     </div>
@@ -313,7 +313,7 @@
     <div class="route-line">
       <div class="route-track"></div>
       <div id="route-plane-mover" class="route-plane-mover">
-        <svg id="route-plane" class="route-plane" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg id="route-plane" class="route-plane" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" transform="rotate(90 12 12)"/>
         </svg>
       </div>
@@ -324,7 +324,7 @@
     </div>
   </div>
   <div id="countdown"></div>
-  <div id="delay-badge" class="delay-badge">
+  <div id="delay-badge" class="delay-badge" role="status" aria-live="polite">
     <span class="delay-dot"></span>
     <span id="delay-text"></span>
   </div>
