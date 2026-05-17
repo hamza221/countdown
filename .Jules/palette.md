@@ -1,0 +1,3 @@
+## 2025-01-20 - Ensure screen reader compatibility for dynamic components
+**Learning:** For dynamic UI elements that update asynchronously without page reloads (e.g., loading states, delay badges), it's important to add `role="status"` and `aria-live="polite"` (or `assertive`) to ensure screen readers monitor and announce the changes. Additionally, adding `aria-hidden="true"` to decorative SVGs prevents screen readers from unnecessarily reading them out.
+**Action:** Always verify if a dynamic UI element needs to be announced to screen readers. If so, add `role="status"` and `aria-live="polite"`. If an SVG is purely decorative, add `aria-hidden="true"`.
