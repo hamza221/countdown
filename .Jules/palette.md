@@ -1,0 +1,3 @@
+## 2024-05-18 - Accessibility for Dynamic UI Elements
+**Learning:** For dynamic UI elements that update asynchronously without page reloads (such as loading states and delay badges), screen readers will not announce the changes unless explicitly told to do so. In addition, decorative SVGs and icons without semantic meaning must be explicitly hidden from screen readers to reduce noise.
+**Action:** Always add `role="status"` and `aria-live="polite"` (or `assertive` if critical) to dynamic text containers that appear or change asynchronously. Additionally, always add `aria-hidden="true"` to decorative SVGs and icons.
